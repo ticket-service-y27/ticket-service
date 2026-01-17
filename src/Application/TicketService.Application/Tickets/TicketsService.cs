@@ -125,6 +125,16 @@ public class TicketsService : ITicketService
         await UpdateStatusAsync(id, TicketStatus.Refunded, cancellationToken);
         bool res = await _paymentServiceClient.RefundMoney(ticket.PaymentId, cancellationToken);
 
+        if (!string.IsNullOrEmpty(ticket.AppliedPromocode))
+        {
+            Promocode? promocode = await _promocodeRepository.GetByCodeAsync(ticket.AppliedPromocode, cancellationToken);
+            if (promocode != null)
+            {
+                long newCount = promocode.Count + 1;
+                await _promocodeRepository.UpdateAsync(ticket.AppliedPromocode, newCount, cancellationToken);
+            }
+        }
+
         if (!res)
         {
             return false;
