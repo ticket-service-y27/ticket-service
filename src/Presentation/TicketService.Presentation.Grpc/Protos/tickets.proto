@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package ticket.tickets.v1;
+
+option csharp_namespace = "TicketService.Grpc.Tickets";
+
+import "google/protobuf/timestamp.proto";
+
+service TicketsService {
+  rpc CreateTicket (CreateTicketRequest) returns (CreateTicketResponse);
+  rpc PayTicket (PayTicketRequest) returns (PayTicketResponse);
+  rpc GetUserTickets (GetUserTicketsRequest) returns (GetUserTicketsResponse);
+  rpc RefundTickets (RefundTicketsRequest) returns (RefundTicketsResponse);
+}
+
+enum TicketStatus {
+  TICKET_STATUS_UNSPECIFIED = 0;
+  TICKET_STATUS_RESERVED = 1;
+  TICKET_STATUS_PAID = 2;
+  TICKET_STATUS_CANCELLED = 3;
+  TICKET_STATUS_REFUNDED = 4;
+}
+
+message Ticket {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 event_id = 3;
+  int64 seat_row = 4;
+  int64 seat_number = 5;
+  int64 price = 6;
+  int64 payment_id = 7;
+  TicketStatus status = 8;
+  google.protobuf.Timestamp created_at = 9;
+  string applied_promocode = 10;
+}
+
+message CreateTicketRequest {
+  int64 user_id = 1;
+  int64 event_id = 2;
+  int64 price = 3;
+  int64 row = 4;
+  int64 number = 5;
+  string applied_promocode = 6;
+}
+
+message CreateTicketResponse {
+  int64 ticket_id = 1;
+}
+
+message UpdateTicketStatusRequest {
+  int64 ticket_id = 1;
+  TicketStatus status = 2;
+}
+
+message UpdateTicketStatusResponse {
+  bool success = 1;
+}
+
+message PayTicketRequest {
+  int64 ticket_id = 1;
+}
+
+message PayTicketResponse {
+  bool success = 1;
+  string fail_reason = 2;
+}
+
+message GetUserTicketsRequest {
+  int64 user_id = 1;
+  int64 cursor = 2;
+}
+
+message GetUserTicketsResponse {
+  repeated Ticket tickets = 1;
+}
+
+message RefundTicketsRequest{
+  int64 ticket_id = 1;
+  int64 scheme_id = 2;
+}
+
+message RefundTicketsResponse{
+  bool success = 1;
+}
